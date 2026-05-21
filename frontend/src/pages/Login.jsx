@@ -22,7 +22,7 @@ export default function Login() {
 
     try {
       const response = await axios.get(
-        `http://localhost:9000/student/${usn}`
+        `https://student-performance-analyzer-keuu.onrender.com/student/${usn}`
       );
 
       if (response.data.length === 0) {

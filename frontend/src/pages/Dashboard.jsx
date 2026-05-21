@@ -62,7 +62,7 @@ export default function Dashboard() {
     const fetchAnalysis = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:9000/analysis/${usn}/${semester}`
+          `https://student-performance-analyzer-keuu.onrender.com/analysis/${usn}/${semester}`
         );
 
         setAnalysis(response.data);
