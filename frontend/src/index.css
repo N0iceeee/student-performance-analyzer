@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(
+    to bottom right,
+    #d6f0ff,
+    #ffd6e0,
+    #e6dcff
+  );
+}
