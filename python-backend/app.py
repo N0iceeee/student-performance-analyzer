@@ -85,27 +85,28 @@ def get_analysis(usn, semester):
     if student_data.empty:
         return jsonify({"error": "Student not found"})
 
+    # RAW average out of 30
     internal_average = (
         student_data["Internal 1"] +
         student_data["Internal 2"] +
         student_data["Internal 3"]
     ) / 3
 
-    internal_percentage = (internal_average / 30) * 100
-
     overall_average = float(np.mean(internal_average))
-    overall_percentage = float(np.mean(internal_percentage))
 
     strongest_subject = student_data.iloc[np.argmax(internal_average)]["Subject Name"]
     weakest_subject = student_data.iloc[np.argmin(internal_average)]["Subject Name"]
 
-    assignment_percentage = (student_data["Assignment Score"] / 10) * 100
+    # Performance score only uses internals and assignment.
+    # This is normalized to 100 for easy interpretation.
+    internal_score_out_of_100 = (internal_average / 30) * 100
+    assignment_score_out_of_100 = (student_data["Assignment Score"] / 10) * 100
 
     performance_scores = (
-    0.5 * internal_percentage +
-    0.5 * assignment_percentage
-   )
-    
+        0.5 * internal_score_out_of_100 +
+        0.5 * assignment_score_out_of_100
+    )
+
     predicted_score = float(np.mean(performance_scores))
 
     if predicted_score >= 85:
@@ -131,6 +132,7 @@ def get_analysis(usn, semester):
             row["Internal 3"]
         ]
 
+        # Raw variance and std dev based on /30 marks
         variance = float(np.var(marks))
         std_dev = float(np.std(marks))
 
@@ -154,7 +156,7 @@ def get_analysis(usn, semester):
         "usn": usn,
         "semester": semester,
         "overall_average": round(overall_average, 2),
-        "overall_percentage": round(overall_percentage, 2),
+        "average_max_marks": 30,
         "strongest_subject": strongest_subject,
         "weakest_subject": weakest_subject,
         "predicted_score": round(predicted_score, 2),
