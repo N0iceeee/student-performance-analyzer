@@ -14,9 +14,7 @@ export default function SubjectDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const studentData =
-    JSON.parse(localStorage.getItem("studentData")) || [];
-
+  const studentData = JSON.parse(localStorage.getItem("studentData")) || [];
   const semester = localStorage.getItem("semester");
 
   const filteredSubjects = studentData.filter(
@@ -29,9 +27,7 @@ export default function SubjectDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-pink-100 to-purple-100">
         <div className="bg-white/40 p-10 rounded-3xl shadow-xl text-center">
-          <h1 className="text-3xl font-bold mb-4">
-            Subject Not Found
-          </h1>
+          <h1 className="text-3xl font-bold mb-4">Subject Not Found</h1>
 
           <button
             onClick={() => navigate("/dashboard")}
@@ -45,25 +41,15 @@ export default function SubjectDetail() {
   }
 
   const marksData = [
-    {
-      exam: "Internal 1",
-      marks: subject["Internal 1"],
-    },
-    {
-      exam: "Internal 2",
-      marks: subject["Internal 2"],
-    },
-    {
-      exam: "Internal 3",
-      marks: subject["Internal 3"],
-    },
+    { exam: "Internal 1", marks: subject["Internal 1"] },
+    { exam: "Internal 2", marks: subject["Internal 2"] },
+    { exam: "Internal 3", marks: subject["Internal 3"] },
   ];
 
   const average =
-    (subject["Internal 1"] +
-      subject["Internal 2"] +
-      subject["Internal 3"]) /
-    3;
+    (subject["Internal 1"] + subject["Internal 2"] + subject["Internal 3"]) / 3;
+
+  const averagePercentage = (average / 30) * 100;
 
   const highest = Math.max(
     subject["Internal 1"],
@@ -77,12 +63,11 @@ export default function SubjectDetail() {
     subject["Internal 3"]
   );
 
-  const improvement =
-    subject["Internal 3"] - subject["Internal 1"];
+  const improvement = subject["Internal 3"] - subject["Internal 1"];
 
   let aiFeedback = "";
 
-  if (improvement > 10) {
+  if (improvement > 4) {
     aiFeedback =
       "You are improving strongly in this subject. Keep following the same study pattern and revise regularly.";
   } else if (improvement > 0) {
@@ -98,14 +83,18 @@ export default function SubjectDetail() {
 
   let focusArea = "";
 
-  if (average >= 85) {
-    focusArea = "Maintain consistency and aim for university-level high scoring answers.";
-  } else if (average >= 70) {
-    focusArea = "Focus on improving accuracy and writing more complete answers.";
-  } else if (average >= 55) {
-    focusArea = "Revise core concepts and practice medium-level problems daily.";
+  if (averagePercentage >= 85) {
+    focusArea =
+      "Excellent performance. Maintain consistency and aim for full marks.";
+  } else if (averagePercentage >= 75) {
+    focusArea =
+      "Good performance. Focus on improving accuracy and presentation.";
+  } else if (averagePercentage >= 50) {
+    focusArea =
+      "Average performance. Revise core concepts and practice regularly.";
   } else {
-    focusArea = "Start from basics, revise class notes, and solve repeated exam questions.";
+    focusArea =
+      "Needs improvement. Start from basics and solve repeated questions.";
   }
 
   return (
@@ -130,37 +119,33 @@ export default function SubjectDetail() {
       <div className="grid grid-cols-4 gap-6 mb-10">
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
           <h2 className="font-semibold mb-2">Average</h2>
-          <p className="text-4xl font-bold">{average.toFixed(1)}%</p>
+          <p className="text-4xl font-bold">{average.toFixed(1)}/30</p>
         </div>
 
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
           <h2 className="font-semibold mb-2">Highest</h2>
-          <p className="text-4xl font-bold">{highest}</p>
+          <p className="text-4xl font-bold">{highest}/30</p>
         </div>
 
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
           <h2 className="font-semibold mb-2">Lowest</h2>
-          <p className="text-4xl font-bold">{lowest}</p>
+          <p className="text-4xl font-bold">{lowest}/30</p>
         </div>
 
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
           <h2 className="font-semibold mb-2">Attendance</h2>
-          <p className="text-4xl font-bold">
-            {subject["Attendance %"]}%
-          </p>
+          <p className="text-4xl font-bold">{subject["Attendance %"]}%</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-8 mb-10">
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
-          <h2 className="text-2xl font-semibold mb-4">
-            Marks Progression
-          </h2>
+          <h2 className="text-2xl font-semibold mb-4">Marks Progression</h2>
 
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={marksData}>
               <XAxis dataKey="exam" />
-              <YAxis />
+              <YAxis domain={[0, 30]} />
               <Tooltip />
               <Line
                 type="monotone"
@@ -173,14 +158,12 @@ export default function SubjectDetail() {
         </div>
 
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
-          <h2 className="text-2xl font-semibold mb-4">
-            Internal Comparison
-          </h2>
+          <h2 className="text-2xl font-semibold mb-4">Internal Comparison</h2>
 
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={marksData}>
               <XAxis dataKey="exam" />
-              <YAxis />
+              <YAxis domain={[0, 30]} />
               <Tooltip />
               <Bar dataKey="marks" fill="#93c5fd" radius={[12, 12, 0, 0]} />
             </BarChart>
@@ -190,28 +173,24 @@ export default function SubjectDetail() {
 
       <div className="grid grid-cols-2 gap-8">
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
-          <h2 className="text-2xl font-semibold mb-3">
-            AI Analysis 🧠
-          </h2>
+          <h2 className="text-2xl font-semibold mb-3">AI Analysis 🧠</h2>
 
-          <p className="text-gray-700 leading-relaxed">
-            {aiFeedback}
-          </p>
+          <p className="text-gray-700 leading-relaxed">{aiFeedback}</p>
         </div>
 
         <div className="bg-white/40 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
-          <h2 className="text-2xl font-semibold mb-3">
-            Improvement Plan 🎯
-          </h2>
+          <h2 className="text-2xl font-semibold mb-3">Improvement Plan 🎯</h2>
 
-          <p className="text-gray-700 leading-relaxed">
-            {focusArea}
-          </p>
+          <p className="text-gray-700 leading-relaxed">{focusArea}</p>
 
           <p className="mt-4 text-gray-700">
             Suggested study time:{" "}
             <span className="font-bold">
-              {average >= 75 ? "1 hour/day" : average >= 55 ? "2 hours/day" : "3 hours/day"}
+              {averagePercentage >= 75
+                ? "1 hour/day"
+                : averagePercentage >= 50
+                ? "2 hours/day"
+                : "3 hours/day"}
             </span>
           </p>
         </div>
