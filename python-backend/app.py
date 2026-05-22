@@ -49,14 +49,15 @@ def predict_future_score(marks):
 
     slope, intercept = np.polyfit(x, y, 1)
     predicted = slope * 4 + intercept
-    predicted = max(0, min(100, predicted))
+
+    predicted = max(0, min(30, predicted))
 
     return round(float(predicted), 2)
 
 def get_consistency_level(std_dev):
-    if std_dev <= 5:
+    if std_dev <= 2:
         return "Highly Consistent"
-    elif std_dev <= 10:
+    elif std_dev <= 5:
         return "Moderately Consistent"
     else:
         return "Inconsistent"
@@ -84,26 +85,27 @@ def get_analysis(usn, semester):
     if student_data.empty:
         return jsonify({"error": "Student not found"})
 
-    averages = (
+    internal_average = (
         student_data["Internal 1"] +
         student_data["Internal 2"] +
         student_data["Internal 3"]
     ) / 3
 
-    overall_average = float(np.mean(averages))
-    highest_average = float(np.max(averages))
-    lowest_average = float(np.min(averages))
+    internal_percentage = (internal_average / 30) * 100
 
-    strongest_subject = student_data.iloc[np.argmax(averages)]["Subject Name"]
-    weakest_subject = student_data.iloc[np.argmin(averages)]["Subject Name"]
+    overall_average = float(np.mean(internal_average))
+    overall_percentage = float(np.mean(internal_percentage))
+
+    strongest_subject = student_data.iloc[np.argmax(internal_average)]["Subject Name"]
+    weakest_subject = student_data.iloc[np.argmin(internal_average)]["Subject Name"]
+
+    assignment_percentage = (student_data["Assignment Score"] / 10) * 100
 
     performance_scores = (
-        0.5 * averages +
-        0.2 * student_data["Attendance %"] +
-        0.2 * student_data["Assignment Score"] +
-        0.1 * student_data["Lab Marks"]
-    )
-
+    0.5 * internal_percentage +
+    0.5 * assignment_percentage
+   )
+    
     predicted_score = float(np.mean(performance_scores))
 
     if predicted_score >= 85:
@@ -135,7 +137,8 @@ def get_analysis(usn, semester):
         future_predictions.append({
             "subject": row["Subject Name"],
             "subject_code": row["Subject Code"],
-            "predicted_future_score": predict_future_score(marks)
+            "predicted_future_score": predict_future_score(marks),
+            "max_marks": 30
         })
 
         consistency_analysis.append({
@@ -151,8 +154,7 @@ def get_analysis(usn, semester):
         "usn": usn,
         "semester": semester,
         "overall_average": round(overall_average, 2),
-        "highest_average": round(highest_average, 2),
-        "lowest_average": round(lowest_average, 2),
+        "overall_percentage": round(overall_percentage, 2),
         "strongest_subject": strongest_subject,
         "weakest_subject": weakest_subject,
         "predicted_score": round(predicted_score, 2),
